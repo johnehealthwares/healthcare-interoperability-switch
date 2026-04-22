@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Create NestJS Backend",
+			"type": "shell",
+			"command": "mkdir -p /Users/john/develop/health-interoperability-switch/backend && cd /Users/john/develop/health-interoperability-switch/backend && npm init -y && npm install @nestjs/core @nestjs/common @nestjs/platform-express reflect-metadata rxjs typescript ts-node @types/node --save && npm install @nestjs/cli --save-dev"
+		}
+	]
+}

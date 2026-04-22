@@ -1,0 +1,6 @@
+export enum AEStatus {
+  ACTIVE = 'ACTIVE',
+  INACTIVE = 'INACTIVE',
+  MAINTENANCE = 'MAINTENANCE',
+  ERROR = 'ERROR',
+}

@@ -1,0 +1,10 @@
+export enum MessageStatus {
+  RECEIVED = 'RECEIVED',
+  PARSED = 'PARSED',
+  ROUTING = 'ROUTING',
+  MAPPING = 'MAPPING',
+  SENDING = 'SENDING',
+  SENT = 'SENT',
+  ACKNOWLEDGED = 'ACKNOWLEDGED',
+  FAILED = 'FAILED',
+}
