@@ -1,0 +1,35 @@
+
+
+POST http://localhost:3000/api/v1/flow/messages
+Content-Type: application/json
+
+{ 
+  "sourceAE": "healthstack",
+  "targetAE": "openelis",
+      "messageType": "ORDER",
+      "protocol": "CUSTOM_JSON",
+      "payload": {
+    "_id": "custom-rad-1",
+    "documentationId": "custom-rad-1",
+    "order_category": "LABORATORY",
+    "order": "Chest X-Ray",
+    "order_status": "Pending",
+    "requestingdoctor_Id": "doc-1",
+    "requestingdoctor_facilityId": "facility-1",
+    "requestingdoctor_facilityname": "HealthStack Hospital",
+    "clientId": "patient-rad-1",
+    "clientname": "Doe",
+    "client": {
+      "_id": "patient-rad-1",
+      "firstname": "Jane",
+      "lastname": "Doe",
+      "dob": "1984-05-01",
+      "gender": "F"
+    },
+    "createdAt": "2026-04-25T09:00:00.000Z"
+}
+}
+
+###Flow
+GET http://localhost:8090/api/v1/routing/tables/default-routing/routes
+Content-Type: application/json

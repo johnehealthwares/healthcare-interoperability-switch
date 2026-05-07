@@ -1,0 +1,89 @@
+The targetAE should be taken from the payload not route
+
+dont use order_category=RADIOLOGY or LABORATORY to route, use targetAE
+
+
+define facilityId, facilityName, customId in AE and use when sending to target, define applicationId,applicationName in route, always send the data in both facility and application as <Namespace ID>() ^ <Universal ID> ^ <Universal ID Type> format define the attributes(namespaceId, id, idType) in AE and route 
+
+create validations model, 
+implement and seed this validtions and attach to healthstack inbound route for radiology 
+1. if canonical.order.category  has LABORATORY and health-coding-concept is searched with module LOINC and canonicalorder.code.codinng[0].code and not found, don't send to downstream, return validation response
+2. create samelike rule with another condition, if canonical.order.category has RADIOLOGY, search the  health-coding-concept for module DICOM and canonicalorder.code.coding[0].code
+
+create the switch also as an AE create a uuid config in .env that'll be used in sending application
+
+replace hardcoded |SWITCH|RXSOFT|TARGET|RECEIVER
+
+whe  formatting date, remove T as hl7 format is YYYYMMDDHHMMSS
+
+
+create a readme to summarise and also include sequence diagrams
+
+HL7 Name should be: Last^First, DOB: YYYYMMDD, Gender: F, M, U
+remove filler order number from sent hl7
+
+use hl7-standard to validate bbdefore receiving or sending
+
+
+
+when sending fhir use lowercase for enums, such as priority
+
+create a new nestjs server called healthcare-coding-concept 
+schema
+Module DICOM | LOINC | SNOMED | EMDEx | ICD10 | RxNorm
+EAV schema
+moduleCode {
+    module: Module
+    id: UUID,
+    code: string
+    shortName: string
+    fullName: string
+    shortDescription: string
+    fullDescription: string
+}
+
+ConceptValue {
+    id
+    entity
+    module : MOdule
+    attributeId
+    attributeName
+    value
+    valueFormat
+}
+
+ExternalConceptMapping {
+    id
+    externalModule: 
+    externalCode: string
+    internalModule: Module
+}
+
+make colums code and module indexed
+
+api to 
+- upload code,
+- upload codeconceptvalue
+-add concept
+- comprehensive paginated, filtered api to list concepts
+
+comprehensive search and match api to get starndard conceptcode search|match/$module/$moduleCode 
+     by name like, code , 
+search returns just one
+match returns all matches
+
+expose controllers for the CRUD including pagination and filters, 
+
+introduce config in route that when flagged , will call the coding server api to search the cannonical order.code.code and validate it esists bbefore sending to downstream system
+
+
+sync new updates in the switch with  rxsoft-admin
+
+add anew module  (coding concept) to rxsoft-admin and implement CRUD, search , match and upload pages
+
+when metadata parameter is true, return estra field {attributeId:{attributeId, attributeName, attributeValue, valueFormat}} which is the key value of the meatadata: 
+ create a docker-compose-dev mapping the appropriate respective project folder of
+healthstack-backend
+rssoft-admin
+health-interoperability-switch
+health-coding-concept (new one created )
