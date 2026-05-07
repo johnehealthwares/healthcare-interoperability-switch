@@ -17,7 +17,7 @@ exports.EventTracerService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const entities_1 = require("../../core/entities");
 const enums_1 = require("../../../common/enums");
 let EventTracerService = EventTracerService_1 = class EventTracerService {
@@ -41,7 +41,10 @@ let EventTracerService = EventTracerService_1 = class EventTracerService {
     async recordEvent(event) {
         try {
             // Save to database
-            await this.eventRepository.save(event);
+            await this.eventRepository.save({
+                ...event,
+                correlationId: event.correlationId || event.metadata?.correlationId || '',
+            });
             // Update active trace
             const trace = this.activeTraces.get(event.messageId);
             if (trace) {
@@ -75,6 +78,21 @@ let EventTracerService = EventTracerService_1 = class EventTracerService {
         }
         return null;
     }
+    async listRecentTraces(limit = 20) {
+        const entities = await this.eventStreamRepository.find({
+            order: { startTime: 'DESC' },
+            take: limit,
+        });
+        return entities.map((entity) => ({
+            messageId: entity.messageId,
+            events: entity.events || [],
+            status: entity.status,
+            startTime: entity.startTime,
+            endTime: entity.endTime,
+            totalDuration: entity.totalDuration,
+            errorCount: entity.errorCount,
+        }));
+    }
     async getAuditTrail(messageId) {
         const events = await this.eventRepository.find({
             where: { messageId },
@@ -86,7 +104,7 @@ let EventTracerService = EventTracerService_1 = class EventTracerService {
         const firstEvent = events[0];
         const lastEvent = events[events.length - 1];
         return {
-            id: (0, uuid_1.v4)(),
+            id: (0, crypto_1.randomUUID)(),
             messageId,
             events: events,
             sourceAE: firstEvent.sourceAE,

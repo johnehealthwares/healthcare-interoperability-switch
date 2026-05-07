@@ -17,26 +17,30 @@ let CanonicalToHL7Transformer = CanonicalToHL7Transformer_1 = class CanonicalToH
      * Transform Canonical Patient to HL7 PID segment
      */
     transformPatient(patient) {
-        const fields = ['', '', ''];
+        const fields = new Array(13).fill('');
         // Patient ID
-        fields[3] = patient.id;
+        fields[2] = patient.id;
         // Patient Name
         if (patient.name && patient.name.length > 0) {
-            fields[5] = patient.name[0].text || '';
+            const primaryName = patient.name[0];
+            fields[4] = [
+                primaryName.family || '',
+                primaryName.given?.[0] || '',
+            ].join('^');
         }
         // Date of Birth
-        fields[7] = patient.birthDate || '';
+        fields[6] = this.formatDate(patient.birthDate);
         // Gender
-        fields[8] = patient.gender || 'U';
+        fields[7] = this.mapGenderToHL7(patient.gender);
         // Address
         if (patient.address && patient.address.length > 0) {
-            fields[11] = patient.address[0].text || '';
+            fields[10] = patient.address[0].text || '';
         }
         // Phone
         if (patient.telecom && patient.telecom.length > 0) {
-            fields[13] = patient.telecom[0].value || '';
+            fields[12] = patient.telecom[0].value || '';
         }
-        return `PID|${fields.slice(1).join('|')}`;
+        return `PID|${fields.join('|')}`;
     }
     /**
      * Transform Canonical Order to HL7 OBR/ORC segments
@@ -50,25 +54,19 @@ let CanonicalToHL7Transformer = CanonicalToHL7Transformer_1 = class CanonicalToH
         return segments;
     }
     buildORCSegment(order) {
-        const fields = [''];
-        fields.push(this.mapStatusToHL7(order.status)); // Order Control
-        fields.push(order.id); // Placer Order Number
-        fields.push(order.id); // Filler Order Number
-        fields.push(''); // Order Status
-        fields.push(''); // Response Flag
-        fields.push(''); // Quantity/Timing
-        fields.push(this.mapPriorityToHL7(order.priority)); // Priority
-        return `ORC${fields.join('|')}`;
+        const fields = new Array(7).fill('');
+        fields[0] = this.mapStatusToHL7(order.status); // ORC-1
+        fields[1] = order.id; // ORC-2
+        fields[6] = this.mapPriorityToHL7(order.priority); // ORC-7
+        return `ORC|${fields.join('|')}`;
     }
     buildOBRSegment(order) {
-        const fields = [''];
-        fields.push(order.id); // Sequence
-        fields.push(order.id); // Placer Order Number
-        fields.push(order.id); // Filler Order Number
-        fields.push(order.code?.text || 'Unknown'); // Universal Service ID
-        fields.push(''); // Priority
-        fields.push(new Date().toISOString()); // Requested DateTime
-        return `OBR${fields.join('|')}`;
+        const fields = new Array(6).fill('');
+        fields[0] = '1'; // OBR-1
+        fields[1] = order.id; // OBR-2
+        fields[3] = this.buildUniversalServiceIdentifier(order); // OBR-4
+        fields[5] = this.formatDateTime(order.authoredOn); // OBR-7
+        return `OBR|${fields.join('|')}`;
     }
     mapStatusToHL7(status) {
         const mapping = {
@@ -81,12 +79,49 @@ let CanonicalToHL7Transformer = CanonicalToHL7Transformer_1 = class CanonicalToH
     }
     mapPriorityToHL7(priority) {
         const mapping = {
-            'ROUTINE': 'R',
-            'URGENT': 'U',
-            'ASAP': 'A',
+            'LOW': 'R',
             'NORMAL': 'R',
+            'HIGH': 'A',
+            'URGENT': 'U',
         };
         return mapping[priority] || 'R';
+    }
+    buildUniversalServiceIdentifier(order) {
+        const coding = order.code?.coding?.[0];
+        return [
+            coding?.code || order.code?.text || 'UNKNOWN',
+            coding?.display || order.code?.text || 'Unknown',
+            coding?.system || '',
+        ].join('^');
+    }
+    formatDate(value) {
+        if (!value) {
+            return '';
+        }
+        return String(value).replace(/-/g, '').slice(0, 8);
+    }
+    formatDateTime(value) {
+        if (!value) {
+            return '';
+        }
+        const date = value instanceof Date ? value : new Date(value);
+        if (Number.isNaN(date.getTime())) {
+            return '';
+        }
+        const iso = date.toISOString().replace(/\.\d{3}Z$/, '');
+        return iso.replace(/[-:]/g, '').replace('T', '');
+    }
+    mapGenderToHL7(gender) {
+        switch (String(gender || '').toLowerCase()) {
+            case 'female':
+            case 'f':
+                return 'F';
+            case 'male':
+            case 'm':
+                return 'M';
+            default:
+                return 'U';
+        }
     }
 };
 exports.CanonicalToHL7Transformer = CanonicalToHL7Transformer;

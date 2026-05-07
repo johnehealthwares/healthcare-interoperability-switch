@@ -17,15 +17,16 @@ exports.MappingEngineService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const entities_1 = require("../../core/entities");
+const path_util_1 = require("../../../common/utils/path.util");
 let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
     constructor(mappingRepository) {
         this.mappingRepository = mappingRepository;
         this.logger = new common_1.Logger(MappingEngineService_1.name);
     }
     async createMapping(mapping) {
-        const id = (0, uuid_1.v4)();
+        const id = (0, crypto_1.randomUUID)();
         const entity = this.mappingRepository.create({
             id,
             ...mapping,
@@ -73,7 +74,12 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
             }
             const targetMessage = {};
             const errors = [];
-            const mappingContext = context || { sourceMessage: message };
+            const mappingContext = {
+                sourceMessage: message,
+                targetMessage,
+                variables: context?.variables || {},
+                lookupCache: context?.lookupCache,
+            };
             // Execute mapping steps
             for (const step of mapping.mappingSteps) {
                 try {
@@ -87,7 +93,7 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
                         }
                     }
                     else {
-                        this.setFieldValue(targetMessage, step.targetField, result.value);
+                        (0, path_util_1.setValueByPath)(targetMessage, step.targetField, result.value);
                     }
                 }
                 catch (error) {
@@ -126,11 +132,11 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
         }
     }
     async executeStep(step, source, context) {
-        const sourceValue = this.getFieldValue(source, step.sourceField);
+        const sourceValue = (0, path_util_1.getValueByPath)(source, step.sourceField);
         let value = sourceValue;
         if (step.transformation) {
             if (typeof step.transformation === 'string') {
-                value = await this.applySimpleTransformation(step.transformation, sourceValue);
+                value = await this.applySimpleTransformation(step.transformation, sourceValue, context);
             }
             else {
                 value = await this.applyComplexTransformation(step.transformation, sourceValue, context);
@@ -147,8 +153,10 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
         }
         return { value, error: null };
     }
-    applySimpleTransformation(transformation, value) {
+    applySimpleTransformation(transformation, value, context) {
         switch (transformation) {
+            case 'value':
+                return value;
             case 'uppercase':
                 return String(value).toUpperCase();
             case 'lowercase':
@@ -156,7 +164,12 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
             case 'trim':
                 return String(value).trim();
             default:
-                return value;
+                return this.evaluateExpression(transformation, {
+                    value,
+                    sourceMessage: context.sourceMessage,
+                    targetMessage: context.targetMessage,
+                    ...context.variables,
+                });
         }
     }
     async applyComplexTransformation(transformation, value, context) {
@@ -168,7 +181,12 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
             case 'split':
                 return String(value).split(transformation.params?.delimiter || ',');
             case 'custom':
-                return this.evaluateExpression(transformation.expression, { value, ...context.variables });
+                return this.evaluateExpression(transformation.expression, {
+                    value,
+                    sourceMessage: context.sourceMessage,
+                    targetMessage: context.targetMessage,
+                    ...context.variables,
+                });
             default:
                 return value;
         }
@@ -194,20 +212,6 @@ let MappingEngineService = MappingEngineService_1 = class MappingEngineService {
             this.logger.warn(`Expression evaluation failed: ${err.message}`);
             return null;
         }
-    }
-    getFieldValue(obj, path) {
-        return path.split('.').reduce((current, key) => current?.[key], obj);
-    }
-    setFieldValue(obj, path, value) {
-        const keys = path.split('.');
-        const lastKey = keys.pop();
-        const target = keys.reduce((current, key) => {
-            if (!current[key]) {
-                current[key] = {};
-            }
-            return current[key];
-        }, obj);
-        target[lastKey] = value;
     }
 };
 exports.MappingEngineService = MappingEngineService;

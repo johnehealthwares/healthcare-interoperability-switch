@@ -11,6 +11,7 @@ export declare class EventTracerService implements EventTracer {
     startTrace(messageId: string, correlationId: string): void;
     recordEvent(event: MessageEvent): Promise<void>;
     getEventStream(messageId: string): Promise<EventStream | null>;
+    listRecentTraces(limit?: number): Promise<EventStream[]>;
     getAuditTrail(messageId: string): Promise<MessageEventAuditEntry | null>;
     completeTrace(messageId: string, finalStatus: MessageStatus): Promise<EventStream>;
     createEventMetadata(correlationId: string, traceId: string, spanId: string, customData?: Record<string, any>): EventMetadata;

@@ -15,8 +15,20 @@ let HL7Module = class HL7Module {
 exports.HL7Module = HL7Module;
 exports.HL7Module = HL7Module = __decorate([
     (0, common_1.Module)({
-        providers: [services_1.HL7ParserService, transformers_1.HL7ToCanonicalTransformer, transformers_1.CanonicalToHL7Transformer],
-        exports: [services_1.HL7ParserService, transformers_1.HL7ToCanonicalTransformer, transformers_1.CanonicalToHL7Transformer],
+        providers: [
+            services_1.HL7ParserService,
+            services_1.HL7BridgeService,
+            services_1.HL7StandardValidatorService,
+            transformers_1.HL7ToCanonicalTransformer,
+            transformers_1.CanonicalToHL7Transformer,
+        ],
+        exports: [
+            services_1.HL7ParserService,
+            services_1.HL7BridgeService,
+            services_1.HL7StandardValidatorService,
+            transformers_1.HL7ToCanonicalTransformer,
+            transformers_1.CanonicalToHL7Transformer,
+        ],
     })
 ], HL7Module);
 //# sourceMappingURL=hl7.module.js.map

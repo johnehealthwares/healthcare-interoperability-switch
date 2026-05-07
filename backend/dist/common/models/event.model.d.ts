@@ -16,6 +16,7 @@ export interface MessageEvent {
     id: string;
     eventType: EventType;
     messageId: string;
+    correlationId?: string;
     timestamp: Date;
     sequenceNumber: number;
     sourceAE: string;

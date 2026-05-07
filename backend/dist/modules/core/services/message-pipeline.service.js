@@ -12,7 +12,7 @@ var MessagePipelineService_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessagePipelineService = void 0;
 const common_1 = require("@nestjs/common");
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const ae_registry_service_1 = require("../../ae/services/ae-registry.service");
 const routing_engine_service_1 = require("../../routing/services/routing-engine.service");
 const mapping_engine_service_1 = require("../../mapping/services/mapping-engine.service");
@@ -38,10 +38,10 @@ let MessagePipelineService = MessagePipelineService_1 = class MessagePipelineSer
      * Process incoming message through the pipeline
      */
     async processMessage(rawMessage, protocol, sourceAE) {
-        const messageId = (0, uuid_1.v4)();
-        const correlationId = (0, uuid_1.v4)();
-        const traceId = (0, uuid_1.v4)();
-        const spanId = (0, uuid_1.v4)();
+        const messageId = (0, crypto_1.randomUUID)();
+        const correlationId = (0, crypto_1.randomUUID)();
+        const traceId = (0, crypto_1.randomUUID)();
+        const spanId = (0, crypto_1.randomUUID)();
         const context = {
             messageId,
             correlationId,

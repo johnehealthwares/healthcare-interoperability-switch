@@ -3,4 +3,5 @@ export * from './ae.model';
 export * from './routing.model';
 export * from './mapping.model';
 export * from './event.model';
+export * from './validation.model';
 //# sourceMappingURL=index.d.ts.map

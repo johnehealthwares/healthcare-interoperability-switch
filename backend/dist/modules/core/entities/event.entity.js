@@ -31,7 +31,7 @@ __decorate([
     __metadata("design:type", String)
 ], MessageEventEntity.prototype, "correlationId", void 0);
 __decorate([
-    (0, typeorm_1.Column)('timestamp'),
+    (0, typeorm_1.Column)('datetime'),
     __metadata("design:type", Date)
 ], MessageEventEntity.prototype, "timestamp", void 0);
 __decorate([
@@ -51,11 +51,11 @@ __decorate([
     __metadata("design:type", String)
 ], MessageEventEntity.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Object)
 ], MessageEventEntity.prototype, "metadata", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Object)
 ], MessageEventEntity.prototype, "snapshot", void 0);
 __decorate([
@@ -88,7 +88,7 @@ __decorate([
     __metadata("design:type", String)
 ], EventStreamEntity.prototype, "messageId", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Array)
 ], EventStreamEntity.prototype, "events", void 0);
 __decorate([
@@ -96,11 +96,11 @@ __decorate([
     __metadata("design:type", String)
 ], EventStreamEntity.prototype, "status", void 0);
 __decorate([
-    (0, typeorm_1.Column)('timestamp'),
+    (0, typeorm_1.Column)('datetime'),
     __metadata("design:type", Date)
 ], EventStreamEntity.prototype, "startTime", void 0);
 __decorate([
-    (0, typeorm_1.Column)('timestamp', { nullable: true }),
+    (0, typeorm_1.Column)('datetime', { nullable: true }),
     __metadata("design:type", Date)
 ], EventStreamEntity.prototype, "endTime", void 0);
 __decorate([

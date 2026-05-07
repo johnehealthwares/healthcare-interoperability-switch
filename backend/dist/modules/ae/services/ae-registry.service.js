@@ -17,7 +17,7 @@ exports.AERegistryService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const entities_1 = require("../../core/entities");
 const enums_1 = require("../../../common/enums");
 let AERegistryService = AERegistryService_1 = class AERegistryService {
@@ -26,7 +26,7 @@ let AERegistryService = AERegistryService_1 = class AERegistryService {
         this.logger = new common_1.Logger(AERegistryService_1.name);
     }
     async registerAE(aeContract) {
-        const id = (0, uuid_1.v4)();
+        const id = (0, crypto_1.randomUUID)();
         const ae = this.aeRepository.create({
             id,
             ...aeContract,

@@ -27,7 +27,7 @@ __decorate([
     __metadata("design:type", String)
 ], RoutingTableEntity.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Array)
 ], RoutingTableEntity.prototype, "routes", void 0);
 __decorate([

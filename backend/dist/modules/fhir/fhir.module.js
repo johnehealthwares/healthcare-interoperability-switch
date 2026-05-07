@@ -15,8 +15,8 @@ let FHIRModule = class FHIRModule {
 exports.FHIRModule = FHIRModule;
 exports.FHIRModule = FHIRModule = __decorate([
     (0, common_1.Module)({
-        providers: [services_1.FHIRValidatorService, transformers_1.FHIRToCanonicalTransformer, transformers_1.CanonicalToFHIRTransformer],
-        exports: [services_1.FHIRValidatorService, transformers_1.FHIRToCanonicalTransformer, transformers_1.CanonicalToFHIRTransformer],
+        providers: [services_1.FHIRValidatorService, services_1.FHIRBridgeService, transformers_1.FHIRToCanonicalTransformer, transformers_1.CanonicalToFHIRTransformer],
+        exports: [services_1.FHIRValidatorService, services_1.FHIRBridgeService, transformers_1.FHIRToCanonicalTransformer, transformers_1.CanonicalToFHIRTransformer],
     })
 ], FHIRModule);
 //# sourceMappingURL=fhir.module.js.map

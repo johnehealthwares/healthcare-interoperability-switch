@@ -68,8 +68,8 @@ __decorate([
 ], AEController.prototype, "getAEByName", null);
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Param)('status')),
-    __param(1, (0, common_1.Param)('protocol')),
+    __param(0, (0, common_1.Query)('status')),
+    __param(1, (0, common_1.Query)('protocol')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String]),
     __metadata("design:returntype", Promise)
@@ -97,7 +97,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], AEController.prototype, "deactivateAE", null);
 exports.AEController = AEController = __decorate([
-    (0, common_1.Controller)('api/v1/aes'),
+    (0, common_1.Controller)('v1/aes'),
     __metadata("design:paramtypes", [services_1.AERegistryService])
 ], AEController);
 //# sourceMappingURL=ae.controller.js.map

@@ -43,7 +43,7 @@ let CanonicalToFHIRTransformer = CanonicalToFHIRTransformer_1 = class CanonicalT
             identifier: canonicalOrder.identifier,
             status: canonicalOrder.status,
             intent: canonicalOrder.intent,
-            priority: canonicalOrder.priority,
+            priority: canonicalOrder.priority?.toLowerCase(),
             category: canonicalOrder.category,
             code: canonicalOrder.code,
             subject: canonicalOrder.subject,

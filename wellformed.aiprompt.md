@@ -507,3 +507,14 @@ export interface PaymentMethod {
 Always update a progress.md file of the progress compared to the instructions here
 Also a readme.md file about the project
 once a feature is completed, remove from this file, so we know what's left
+
+Go over this file again and implement what hasn't been implemented, delete what has been implemented, add unit tests,
+Add seeds on startup,
+- Add two AEs, Healthstack(localhost:9090) and DCM4CHEE(localhost:8080) ✅
+- Add appropriate routing and mapping ✅
+- Implement complete flow to send healthstack order and patient to DCM4CHEE  via HL7 ✅
+- Implement complete flow to send healthstack order and patient to open elis  via FHir ✅
+- test with inmemory db  while addinng real db configs so it can be switched , use nestJS config service to get env vars ✅
+- Implement the HL7 Bridge and FHir BBridge for sending, receiving , pinging and echoing other systems ✅
+- Also keep the frontend up to date as new features are added 
+

@@ -1,4 +1,4 @@
-import { ProtocolType, AEStatus } from '../enums';
+import { ProtocolType, AEStatus, MessageType } from '../enums';
 export interface SecuritySettings {
     tlsEnabled: boolean;
     tlsVersion?: string;
@@ -40,9 +40,27 @@ export interface ProtocolConfig {
         authToken?: string;
     };
 }
+export interface AEMappingBinding {
+    messageType: MessageType;
+    protocol: ProtocolType;
+    mappingId?: string;
+}
 export interface MappingReference {
-    inboundMappingId: string;
-    outboundMappingId: string;
+    inboundMappingId?: string;
+    outboundMappingId?: string;
+    inbound?: AEMappingBinding[];
+    outbound?: AEMappingBinding[];
+}
+export interface HDIdentifier {
+    namespaceId?: string;
+    id?: string;
+    idType?: string;
+}
+export interface AEFacilityProfile {
+    facilityId?: string;
+    facilityName?: string;
+    customId?: string;
+    identifier?: HDIdentifier;
 }
 /** Application Entity (AE) Contract */
 export interface ApplicationEntityContract {
@@ -50,6 +68,11 @@ export interface ApplicationEntityContract {
     name: string;
     description?: string;
     facilityCode?: string;
+    facilityId?: string;
+    facilityName?: string;
+    customId?: string;
+    facilityIdentifier?: HDIdentifier;
+    facility?: AEFacilityProfile;
     organizationId?: string;
     status: AEStatus;
     inboundCapabilities: ProtocolType[];

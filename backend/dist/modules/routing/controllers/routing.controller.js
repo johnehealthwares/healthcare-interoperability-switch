@@ -64,7 +64,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], RoutingController.prototype, "evaluateRoute", null);
 exports.RoutingController = RoutingController = __decorate([
-    (0, common_1.Controller)('api/v1/routing'),
+    (0, common_1.Controller)('v1/routing'),
     __metadata("design:paramtypes", [services_1.RoutingEngineService])
 ], RoutingController);
 //# sourceMappingURL=routing.controller.js.map

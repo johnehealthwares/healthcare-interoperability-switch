@@ -31,7 +31,7 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AppController.prototype, "health", null);
 __decorate([
-    (0, common_1.Get)('/api/v1/info'),
+    (0, common_1.Get)('/v1/info'),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", void 0)

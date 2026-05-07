@@ -68,9 +68,9 @@ __decorate([
 ], MappingController.prototype, "updateMapping", null);
 __decorate([
     (0, common_1.Get)(),
-    __param(0, (0, common_1.Param)('sourceProtocol')),
-    __param(1, (0, common_1.Param)('targetProtocol')),
-    __param(2, (0, common_1.Param)('active')),
+    __param(0, (0, common_1.Query)('sourceProtocol')),
+    __param(1, (0, common_1.Query)('targetProtocol')),
+    __param(2, (0, common_1.Query)('active')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, String, Boolean]),
     __metadata("design:returntype", Promise)
@@ -84,7 +84,7 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], MappingController.prototype, "mapMessage", null);
 exports.MappingController = MappingController = __decorate([
-    (0, common_1.Controller)('api/v1/mappings'),
+    (0, common_1.Controller)('v1/mappings'),
     __metadata("design:paramtypes", [services_1.MappingEngineService])
 ], MappingController);
 //# sourceMappingURL=mapping.controller.js.map

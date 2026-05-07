@@ -43,11 +43,11 @@ __decorate([
     __metadata("design:type", String)
 ], StandardMappingEntity.prototype, "targetMessageType", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Array)
 ], StandardMappingEntity.prototype, "mappingSteps", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { nullable: true }),
+    (0, typeorm_1.Column)('simple-json', { nullable: true }),
     __metadata("design:type", Object)
 ], StandardMappingEntity.prototype, "globalLookups", void 0);
 __decorate([

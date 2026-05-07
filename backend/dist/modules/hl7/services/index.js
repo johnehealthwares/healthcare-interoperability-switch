@@ -15,4 +15,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 __exportStar(require("./hl7-parser.service"), exports);
+__exportStar(require("./hl7-bridge.service"), exports);
+__exportStar(require("./hl7-standard-validator.service"), exports);
 //# sourceMappingURL=index.js.map

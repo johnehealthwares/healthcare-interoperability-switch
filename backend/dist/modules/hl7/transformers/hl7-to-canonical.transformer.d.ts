@@ -22,5 +22,9 @@ export declare class HL7ToCanonicalTransformer {
     private extractNames;
     private extractAddresses;
     private extractTelecom;
+    private parseHl7DateTime;
+    private mapGender;
+    private normalizeBirthDate;
+    private extractObrIdentifierComponent;
 }
 //# sourceMappingURL=hl7-to-canonical.transformer.d.ts.map

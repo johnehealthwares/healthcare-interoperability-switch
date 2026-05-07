@@ -17,8 +17,9 @@ exports.RoutingEngineService = void 0;
 const common_1 = require("@nestjs/common");
 const typeorm_1 = require("@nestjs/typeorm");
 const typeorm_2 = require("typeorm");
-const uuid_1 = require("uuid");
+const crypto_1 = require("crypto");
 const entities_1 = require("../../core/entities");
+const path_util_1 = require("../../../common/utils/path.util");
 let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
     constructor(routingRepository) {
         this.routingRepository = routingRepository;
@@ -26,7 +27,7 @@ let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
         this.routingCache = new Map();
     }
     async createRoutingTable(name, description) {
-        const id = (0, uuid_1.v4)();
+        const id = (0, crypto_1.randomUUID)();
         const table = this.routingRepository.create({
             id,
             name,
@@ -49,13 +50,17 @@ let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
         }
         return table || null;
     }
+    async getRoutingTableByName(name) {
+        const entity = await this.routingRepository.findOne({ where: { name } });
+        return entity;
+    }
     async addRoute(tableId, route) {
         const table = await this.getRoutingTable(tableId);
         if (!table) {
             throw new Error(`Routing table not found: ${tableId}`);
         }
         const newRoute = {
-            id: (0, uuid_1.v4)(),
+            id: (0, crypto_1.randomUUID)(),
             ...route,
             createdAt: new Date(),
             updatedAt: new Date(),
@@ -84,14 +89,28 @@ let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
         for (const route of sortedRoutes) {
             if (!route.enabled)
                 continue;
+            if (route.sourceAE && route.sourceAE !== context.sourceAE)
+                continue;
+            if (context.targetAE && route.targetAE !== context.targetAE)
+                continue;
+            if (route.messageType && route.messageType !== context.metadata?.messageType) {
+                continue;
+            }
             if (this.evaluateConditions(context.message, route.conditions)) {
                 this.logger.debug(`Route matched: ${route.name} (${route.sourceAE} -> ${route.targetAE})`);
                 return {
                     matched: true,
                     route,
                     targetAE: route.targetAE,
+                    applicationId: route.applicationId,
+                    applicationName: route.applicationName,
                     mappingId: route.mappingId,
-                    metadata: { routeName: route.name, routeId: route.id },
+                    metadata: {
+                        routeName: route.name,
+                        routeId: route.id,
+                        applicationId: route.applicationId,
+                        applicationName: route.applicationName,
+                    },
                 };
             }
         }
@@ -104,6 +123,8 @@ let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
                     matched: true,
                     route: defaultRoute,
                     targetAE: defaultRoute.targetAE,
+                    applicationId: defaultRoute.applicationId,
+                    applicationName: defaultRoute.applicationName,
                     mappingId: defaultRoute.mappingId,
                 };
             }
@@ -148,7 +169,7 @@ let RoutingEngineService = RoutingEngineService_1 = class RoutingEngineService {
         }
     }
     getFieldValue(obj, path) {
-        return path.split('.').reduce((current, key) => current?.[key], obj);
+        return (0, path_util_1.getValueByPath)(obj, path);
     }
 };
 exports.RoutingEngineService = RoutingEngineService;

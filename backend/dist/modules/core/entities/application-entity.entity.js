@@ -34,9 +34,29 @@ __decorate([
 __decorate([
     (0, typeorm_1.Column)('varchar', { length: 255, nullable: true }),
     __metadata("design:type", String)
+], ApplicationEntityEntity.prototype, "facilityId", void 0);
+__decorate([
+    (0, typeorm_1.Column)('varchar', { length: 255, nullable: true }),
+    __metadata("design:type", String)
+], ApplicationEntityEntity.prototype, "facilityName", void 0);
+__decorate([
+    (0, typeorm_1.Column)('varchar', { length: 255, nullable: true }),
+    __metadata("design:type", String)
+], ApplicationEntityEntity.prototype, "customId", void 0);
+__decorate([
+    (0, typeorm_1.Column)('simple-json', { nullable: true }),
+    __metadata("design:type", Object)
+], ApplicationEntityEntity.prototype, "facilityIdentifier", void 0);
+__decorate([
+    (0, typeorm_1.Column)('simple-json', { nullable: true }),
+    __metadata("design:type", Object)
+], ApplicationEntityEntity.prototype, "facility", void 0);
+__decorate([
+    (0, typeorm_1.Column)('varchar', { length: 255, nullable: true }),
+    __metadata("design:type", String)
 ], ApplicationEntityEntity.prototype, "organizationId", void 0);
 __decorate([
-    (0, typeorm_1.Column)('enum', { enum: enums_1.AEStatus, default: enums_1.AEStatus.ACTIVE }),
+    (0, typeorm_1.Column)('simple-enum', { enum: enums_1.AEStatus, default: enums_1.AEStatus.ACTIVE }),
     __metadata("design:type", String)
 ], ApplicationEntityEntity.prototype, "status", void 0);
 __decorate([
@@ -48,23 +68,23 @@ __decorate([
     __metadata("design:type", Array)
 ], ApplicationEntityEntity.prototype, "outboundCapabilities", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { default: {} }),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Array)
 ], ApplicationEntityEntity.prototype, "inboundConfig", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { default: {} }),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Array)
 ], ApplicationEntityEntity.prototype, "outboundConfig", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb'),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Object)
 ], ApplicationEntityEntity.prototype, "mappings", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { default: {} }),
+    (0, typeorm_1.Column)('simple-json'),
     __metadata("design:type", Object)
 ], ApplicationEntityEntity.prototype, "securitySettings", void 0);
 __decorate([
-    (0, typeorm_1.Column)('jsonb', { nullable: true }),
+    (0, typeorm_1.Column)('simple-json', { nullable: true }),
     __metadata("design:type", Object)
 ], ApplicationEntityEntity.prototype, "attributes", void 0);
 __decorate([

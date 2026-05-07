@@ -19,7 +19,5 @@ export declare class MappingEngineService implements MappingEngine {
     private applyComplexTransformation;
     private evaluateCondition;
     private evaluateExpression;
-    private getFieldValue;
-    private setFieldValue;
 }
 //# sourceMappingURL=mapping-engine.service.d.ts.map

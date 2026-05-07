@@ -9,6 +9,7 @@ var FHIRToCanonicalTransformer_1;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FHIRToCanonicalTransformer = void 0;
 const common_1 = require("@nestjs/common");
+const enums_1 = require("../../../common/enums");
 let FHIRToCanonicalTransformer = FHIRToCanonicalTransformer_1 = class FHIRToCanonicalTransformer {
     constructor() {
         this.logger = new common_1.Logger(FHIRToCanonicalTransformer_1.name);
@@ -45,7 +46,7 @@ let FHIRToCanonicalTransformer = FHIRToCanonicalTransformer_1 = class FHIRToCano
             identifier: fhirServiceRequest.identifier || [],
             status: fhirServiceRequest.status || 'active',
             intent: fhirServiceRequest.intent || 'order',
-            priority: fhirServiceRequest.priority || 'NORMAL',
+            priority: this.mapPriority(fhirServiceRequest.priority),
             category: fhirServiceRequest.category,
             code: fhirServiceRequest.code || { text: '' },
             subject: fhirServiceRequest.subject,
@@ -64,6 +65,22 @@ let FHIRToCanonicalTransformer = FHIRToCanonicalTransformer_1 = class FHIRToCano
             createdAt: new Date(),
             updatedAt: new Date(),
         };
+    }
+    mapPriority(value) {
+        const normalized = String(value || 'NORMAL').toUpperCase();
+        if (normalized === enums_1.Priority.LOW ||
+            normalized === enums_1.Priority.NORMAL ||
+            normalized === enums_1.Priority.HIGH ||
+            normalized === enums_1.Priority.URGENT) {
+            return normalized;
+        }
+        if (normalized === 'ROUTINE') {
+            return enums_1.Priority.NORMAL;
+        }
+        if (normalized === 'STAT' || normalized === 'ASAP') {
+            return enums_1.Priority.URGENT;
+        }
+        return enums_1.Priority.NORMAL;
     }
 };
 exports.FHIRToCanonicalTransformer = FHIRToCanonicalTransformer;

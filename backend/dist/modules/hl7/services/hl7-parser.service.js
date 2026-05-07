@@ -17,10 +17,10 @@ let HL7ParserService = HL7ParserService_1 = class HL7ParserService {
      * Parse HL7 v2 message into structured format
      */
     parseMessage(rawMessage, config) {
-        const lines = rawMessage.trim().split('\r');
+        const lines = rawMessage.trim().split(/\r\n|\n|\r/);
         const segments = [];
         for (const line of lines) {
-            if (!line)
+            if (!line.trim())
                 continue;
             const segmentId = line.substring(0, 3);
             const fieldSeparator = line.charAt(3) || '|';
@@ -93,11 +93,11 @@ let HL7ParserService = HL7ParserService_1 = class HL7ParserService {
         if (!pidSegment)
             return null;
         return {
-            patientId: this.getFieldValue(pidSegment, 3),
-            patientName: this.getFieldValue(pidSegment, 5),
-            dateOfBirth: this.getFieldValue(pidSegment, 7),
-            gender: this.getFieldValue(pidSegment, 8),
-            address: this.getFieldValue(pidSegment, 11),
+            patientId: this.getFieldValue(pidSegment, 2),
+            patientName: this.getFieldValue(pidSegment, 4),
+            dateOfBirth: this.getFieldValue(pidSegment, 6),
+            gender: this.getFieldValue(pidSegment, 7),
+            address: this.getFieldValue(pidSegment, 10),
         };
     }
     /**
@@ -109,8 +109,8 @@ let HL7ParserService = HL7ParserService_1 = class HL7ParserService {
             return null;
         return {
             orderId: this.getFieldValue(obrSegment, 1),
-            universalServiceId: this.getFieldValue(obrSegment, 4),
-            orderStatus: this.getFieldValue(obrSegment, 25),
+            universalServiceId: this.getFieldValue(obrSegment, 3),
+            orderStatus: this.getFieldValue(obrSegment, 24),
             orderDateTime: this.getFieldValue(obrSegment, 6),
         };
     }
@@ -122,11 +122,11 @@ let HL7ParserService = HL7ParserService_1 = class HL7ParserService {
         if (!orcSegment)
             return null;
         return {
-            orderControl: this.getFieldValue(orcSegment, 1),
-            placerOrderNumber: this.getFieldValue(orcSegment, 2),
-            fillerOrderNumber: this.getFieldValue(orcSegment, 3),
-            orderStatus: this.getFieldValue(orcSegment, 5),
-            priority: this.getFieldValue(orcSegment, 7),
+            orderControl: this.getFieldValue(orcSegment, 0),
+            placerOrderNumber: this.getFieldValue(orcSegment, 1),
+            fillerOrderNumber: this.getFieldValue(orcSegment, 2),
+            orderStatus: this.getFieldValue(orcSegment, 4),
+            priority: this.getFieldValue(orcSegment, 6),
         };
     }
 };

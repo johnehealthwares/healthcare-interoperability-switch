@@ -18,4 +18,5 @@ __exportStar(require("./application-entity.entity"), exports);
 __exportStar(require("./routing-table.entity"), exports);
 __exportStar(require("./standard-mapping.entity"), exports);
 __exportStar(require("./event.entity"), exports);
+__exportStar(require("./validation-rule.entity"), exports);
 //# sourceMappingURL=index.js.map

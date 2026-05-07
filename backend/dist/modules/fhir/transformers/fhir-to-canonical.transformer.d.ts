@@ -10,5 +10,6 @@ export declare class FHIRToCanonicalTransformer {
      * Transform FHIR ServiceRequest to Canonical Order
      */
     transformOrder(fhirServiceRequest: FHIRResource): CanonicalOrder;
+    private mapPriority;
 }
 //# sourceMappingURL=fhir-to-canonical.transformer.d.ts.map

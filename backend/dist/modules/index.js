@@ -16,6 +16,7 @@ const event_module_1 = require("./event/event.module");
 const hl7_module_1 = require("./hl7/hl7.module");
 const fhir_module_1 = require("./fhir/fhir.module");
 const core_module_1 = require("./core/core.module");
+const validation_module_1 = require("./validation/validation.module");
 const entities_1 = require("./core/entities");
 let ModulesModule = class ModulesModule {
 };
@@ -29,6 +30,7 @@ exports.ModulesModule = ModulesModule = __decorate([
                 entities_1.StandardMappingEntity,
                 entities_1.MessageEventEntity,
                 entities_1.EventStreamEntity,
+                entities_1.ValidationRuleEntity,
             ]),
             ae_module_1.AEModule,
             routing_module_1.RoutingModule,
@@ -37,8 +39,9 @@ exports.ModulesModule = ModulesModule = __decorate([
             hl7_module_1.HL7Module,
             fhir_module_1.FHIRModule,
             core_module_1.CoreModule,
+            validation_module_1.ValidationModule,
         ],
-        exports: [ae_module_1.AEModule, routing_module_1.RoutingModule, mapping_module_1.MappingModule, event_module_1.EventModule, hl7_module_1.HL7Module, fhir_module_1.FHIRModule, core_module_1.CoreModule],
+        exports: [ae_module_1.AEModule, routing_module_1.RoutingModule, mapping_module_1.MappingModule, event_module_1.EventModule, hl7_module_1.HL7Module, fhir_module_1.FHIRModule, core_module_1.CoreModule, validation_module_1.ValidationModule],
     })
 ], ModulesModule);
 //# sourceMappingURL=index.js.map
