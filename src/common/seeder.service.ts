@@ -105,24 +105,48 @@ export class SeederService implements OnModuleInit {
           },
         },
         inboundCapabilities: [
-          ProtocolType.CUSTOM_JSON
+          ProtocolType.CUSTOM_JSON,
+          ProtocolType.HL7_V2,
+          ProtocolType.FHIR_R4,
         ],
         outboundCapabilities: [
-          ProtocolType.CUSTOM_JSON
+          ProtocolType.CUSTOM_JSON,
+          ProtocolType.HL7_V2,
+          ProtocolType.FHIR_R4,
         ],
         inboundConfig: [
           {
             protocol: ProtocolType.CUSTOM_JSON,
             host: '127.0.0.1',
             port: 3000,
-          }
+          },
+          {
+            protocol: ProtocolType.HL7_V2,
+            host: '127.0.0.1',
+            port: 3000,
+          },
+          {
+            protocol: ProtocolType.FHIR_R4,
+            host: '127.0.0.1',
+            port: 3000,
+          },
         ],
         outboundConfig: [
           {
             protocol: ProtocolType.CUSTOM_JSON,
             host: '127.0.0.1',
             port: 3000,
-          }
+          },
+          {
+            protocol: ProtocolType.HL7_V2,
+            host: '127.0.0.1',
+            port: 3000,
+          },
+          {
+            protocol: ProtocolType.FHIR_R4,
+            host: '127.0.0.1',
+            port: 3000,
+          },
         ],
         mappings: {
           inbound: [
@@ -272,6 +296,7 @@ export class SeederService implements OnModuleInit {
             protocol: ProtocolType.CUSTOM_JSON,
             host: '127.0.0.1',
             port: customPort,
+            status: 'ACTIVE',
           },
         ],
         outboundConfig: [
@@ -279,6 +304,7 @@ export class SeederService implements OnModuleInit {
             protocol: ProtocolType.CUSTOM_JSON,
             host: '127.0.0.1',
             port: customPort,
+            status: 'ACTIVE',
           },
         ],
         mappings: {
@@ -289,6 +315,56 @@ export class SeederService implements OnModuleInit {
               mappingId: 'canonical-order-to-custom-json',
             },
           ],
+        },
+        securitySettings: { tlsEnabled: false },
+      }),
+      this.aeRepo.create({
+        id: 'rxsoft-lis',
+        name: 'RxSoft LIS',
+        description:
+          'RxSoft Laboratory Information System receiving CUSTOM_JSON orders.',
+        status: AEStatus.ACTIVE,
+        facilityId: 'LIS-FAC-001',
+        facilityName: 'RxSoft LIS',
+        customId: 'RXSOFT-LIS',
+        facilityIdentifier: {
+          namespaceId: 'RXSOFT_LIS',
+          id: 'LIS-FAC-001',
+          idType: 'UUID',
+        },
+        facility: {
+          facilityId: 'LIS-FAC-001',
+          facilityName: 'RxSoft LIS',
+          customId: 'RXSOFT-LIS',
+          identifier: {
+            namespaceId: 'RXSOFT_LIS',
+            id: 'LIS-FAC-001',
+            idType: 'UUID',
+          },
+        },
+        inboundCapabilities: [ProtocolType.CUSTOM_JSON],
+        outboundCapabilities: [ProtocolType.CUSTOM_JSON],
+        inboundConfig: [
+          {
+            protocol: ProtocolType.CUSTOM_JSON,
+            host: '127.0.0.1',
+            port: 8091,
+            basePath: '/lis/interop/order',
+            status: 'ACTIVE',
+          },
+        ],
+        outboundConfig: [
+          {
+            protocol: ProtocolType.CUSTOM_JSON,
+            host: '127.0.0.1',
+            port: 8091,
+            basePath: '/lis/interop/order',
+            status: 'ACTIVE',
+          },
+        ],
+        mappings: {
+          inbound: [],
+          outbound: [],
         },
         securitySettings: { tlsEnabled: false },
       }),
@@ -539,6 +615,77 @@ export class SeederService implements OnModuleInit {
           },
         ],
       }),
+      this.mappingRepo.create({
+        id: 'canonical-to-lis-order',
+        name: 'Canonical Order -> LIS Interop Order',
+        description:
+          'Maps the canonical order to the RxSoft LIS CreateInteropOrderDto format.',
+        sourceProtocol: 'CANONICAL',
+        targetProtocol: ProtocolType.CUSTOM_JSON,
+        sourceMessageType: MessageType.ORDER,
+        targetMessageType: MessageType.ORDER,
+        version: '1.0.0',
+        active: true,
+        mappingSteps: [
+          {
+            id: '1',
+            name: 'Patient ID',
+            type: 'field-map',
+            sourceField: 'order.subject.id',
+            targetField: 'patient.patientId',
+            transformation:
+              'String(value || sourceMessage.patient?.identifier?.[0]?.value || "unknown")',
+          },
+          {
+            id: '2',
+            name: 'First Name',
+            type: 'field-map',
+            sourceField: 'patient.name.given[0]',
+            targetField: 'patient.firstName',
+            transformation: 'String(value || "Patient")',
+          },
+          {
+            id: '3',
+            name: 'Last Name',
+            type: 'field-map',
+            sourceField: 'patient.name.family',
+            targetField: 'patient.lastName',
+            transformation: 'String(value || "Unknown")',
+          },
+          {
+            id: '4',
+            name: 'Date of Birth',
+            type: 'field-map',
+            sourceField: 'patient.birthDate',
+            targetField: 'patient.dateOfBirth',
+            transformation: 'value || undefined',
+          },
+          {
+            id: '5',
+            name: 'Gender',
+            type: 'field-map',
+            sourceField: 'patient.gender',
+            targetField: 'patient.gender',
+            transformation: 'String(value || "unknown")',
+          },
+          {
+            id: '6',
+            name: 'LOINC Code',
+            type: 'field-map',
+            sourceField: 'order.code.code',
+            targetField: 'items[0].loincCode',
+            transformation: 'String(value || "UNKNOWN")',
+          },
+          {
+            id: '7',
+            name: 'Test Name',
+            type: 'field-map',
+            sourceField: 'order.code.display',
+            targetField: 'items[0].testName',
+            transformation: 'String(value || "Unknown")',
+          },
+        ],
+      }),
     ]);
   }
 
@@ -630,6 +777,13 @@ export class SeederService implements OnModuleInit {
             messageType: MessageType.ORDER,
             protocol: ProtocolType.HL7_V2,
             conditions: [],
+            enrichmentIds: ['validate-radiology-dicom-code'],
+            enrichmentConfig: {
+              enabled: true,
+              useCodingServer: true,
+              mode: 'search',
+              stopOnLookupMiss: true,
+            },
             validationIds: ['validate-radiology-dicom-code'],
             validationConfig: {
               enabled: true,
@@ -658,6 +812,13 @@ export class SeederService implements OnModuleInit {
             messageType: MessageType.ORDER,
             protocol: ProtocolType.FHIR_R4,
             conditions: [],
+            enrichmentIds: ['validate-laboratory-loinc-code'],
+            enrichmentConfig: {
+              enabled: true,
+              useCodingServer: true,
+              mode: 'search',
+              stopOnLookupMiss: true,
+            },
             validationIds: ['validate-laboratory-loinc-code'],
             validationConfig: {
               enabled: true,
@@ -686,6 +847,36 @@ export class SeederService implements OnModuleInit {
             messageType: MessageType.PATIENT,
             protocol: ProtocolType.HL7_V2,
             conditions: [],
+            enabled: true,
+            status: RouteStatus.ACTIVE,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          },
+          {
+            id: 'route-order-rxsoft-lis',
+            name: 'Healthstack Order -> RxSoft LIS',
+            description:
+              'Laboratory orders from HealthStack are routed to RxSoft LIS via CUSTOM_JSON.',
+            priority: 1.5,
+            sourceAE: 'healthstack',
+            targetAE: 'rxsoft-lis',
+            applicationId: process.env.RXSOFT_LIS_APPLICATION_ID || 'RXSOFT-LIS',
+            applicationName: process.env.RXSOFT_LIS_APPLICATION_NAME || 'RxSoft LIS',
+            applicationIdentifier: {
+              namespaceId: process.env.RXSOFT_LIS_APPLICATION_NAMESPACE_ID || 'RXSOFT_LIS_APP',
+              id: process.env.RXSOFT_LIS_APPLICATION_ID || 'RXSOFT-LIS',
+              idType: process.env.RXSOFT_LIS_APPLICATION_ID_TYPE || 'UUID',
+            },
+            messageType: MessageType.ORDER,
+            protocol: ProtocolType.CUSTOM_JSON,
+            conditions: [
+              {
+                field: 'metadata.orderCategory',
+                operator: 'contains',
+                value: 'LAB',
+              },
+            ],
+            mappingId: 'canonical-to-lis-order',
             enabled: true,
             status: RouteStatus.ACTIVE,
             createdAt: new Date(),

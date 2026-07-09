@@ -3,7 +3,18 @@ import { HDIdentifier } from './ae.model';
 
 export interface RouteCondition {
   field: string;
-  operator: 'equals' | 'contains' | 'startsWith' | 'endsWith' | 'regex' | 'in' | 'between' | 'gt' | 'lt' | 'gte' | 'lte';
+  operator:
+    | 'equals'
+    | 'contains'
+    | 'startsWith'
+    | 'endsWith'
+    | 'regex'
+    | 'in'
+    | 'between'
+    | 'gt'
+    | 'lt'
+    | 'gte'
+    | 'lte';
   value: any;
   jsonPath?: string;
 }
@@ -22,6 +33,14 @@ export interface RoutingRule {
   protocol?: ProtocolType;
   conditions: RouteCondition[];
   mappingId?: string;
+  enrichmentIds?: string[];
+  enrichmentConfig?: {
+    enabled?: boolean;
+    useCodingServer?: boolean;
+    metadata?: boolean;
+    mode?: 'search' | 'match';
+    stopOnLookupMiss?: boolean;
+  };
   validationIds?: string[];
   validationConfig?: {
     enabled?: boolean;

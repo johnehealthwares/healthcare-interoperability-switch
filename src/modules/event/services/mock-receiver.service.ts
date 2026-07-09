@@ -195,8 +195,9 @@ export class MockReceiverService implements OnModuleInit, OnModuleDestroy {
       res.end('Not found');
     });
 
-    await this.listenServer(this.customServer, port);
-    this.logger.log(`Mock custom receiver listening on port ${port}`);
+    const live = await this.listenServer(this.customServer, port);
+    console.log({live, port}, this.customServer)
+    this.logger.log(`Mock custom receiver listening on port ${port} live=${this.customServer.listening}`);
   }
 
   private buildAck(messageControlId: string): string {

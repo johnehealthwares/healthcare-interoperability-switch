@@ -100,6 +100,7 @@ export class MappingEngineService implements MappingEngine {
       const mappingContext: MappingContext = {
         sourceMessage: message,
         targetMessage,
+        context: context?.context,
         variables: context?.variables || {},
         lookupCache: context?.lookupCache,
       };
@@ -174,9 +175,15 @@ export class MappingEngineService implements MappingEngine {
       }
     }
 
+    if (typeof value === 'string' && value.includes('{{')) {
+      value = this.renderTemplate(value, context);
+    }
+
     if (step.condition) {
       const conditionMet = this.evaluateCondition(step.condition, {
         value: sourceValue,
+        context: context.context,
+        variables: context.variables || {},
         ...context.variables,
       });
       if (!conditionMet && step.fallbackValue !== undefined) {
@@ -206,6 +213,8 @@ export class MappingEngineService implements MappingEngine {
           value,
           sourceMessage: context.sourceMessage,
           targetMessage: context.targetMessage,
+          context: context.context,
+          variables: context.variables || {},
           ...context.variables,
         });
     }
@@ -230,6 +239,8 @@ export class MappingEngineService implements MappingEngine {
             value,
             sourceMessage: context.sourceMessage,
             targetMessage: context.targetMessage,
+            context: context.context,
+            variables: context.variables || {},
             ...context.variables,
           },
         );
@@ -254,6 +265,11 @@ export class MappingEngineService implements MappingEngine {
 
   private evaluateExpression(expression: string, variables: Record<string, any>): any {
     try {
+      const templateMatch = expression.match(/^\s*\{\{\s*(.+?)\s*\}\}\s*$/);
+      if (templateMatch) {
+        return this.evaluateExpression(templateMatch[1], variables);
+      }
+
       const func = new Function(...Object.keys(variables), `return ${expression}`);
       return func(...Object.values(variables));
     } catch (error) {
@@ -261,5 +277,31 @@ export class MappingEngineService implements MappingEngine {
       this.logger.warn(`Expression evaluation failed: ${err.message}`);
       return null;
     }
+  }
+
+  private renderTemplate(template: string, context: MappingContext): string {
+    return template.replace(/\{\{\s*(.+?)\s*\}\}/g, (_match, expression) => {
+      const value = this.evaluateExpression(expression, {
+        sourceMessage: context.sourceMessage,
+        targetMessage: context.targetMessage,
+        context: context.context,
+        variables: context.variables || {},
+        ...context.variables,
+      });
+
+      return this.stringifyTemplateValue(value);
+    });
+  }
+
+  private stringifyTemplateValue(value: any): string {
+    if (value === null || value === undefined) {
+      return '';
+    }
+
+    if (typeof value === 'object') {
+      return String(value.code || value.value || value.display || '');
+    }
+
+    return String(value);
   }
 }

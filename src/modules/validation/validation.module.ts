@@ -5,6 +5,7 @@ import { ValidationRuleEntity } from '../core/entities';
 import { ValidationController } from './controllers';
 import {
   CodingConceptClientService,
+  ContextEnrichmentService,
   ValidationRuleService,
 } from './services';
 
@@ -14,7 +15,15 @@ import {
     TypeOrmModule.forFeature([ValidationRuleEntity]),
   ],
   controllers: [ValidationController],
-  providers: [CodingConceptClientService, ValidationRuleService],
-  exports: [CodingConceptClientService, ValidationRuleService],
+  providers: [
+    CodingConceptClientService,
+    ContextEnrichmentService,
+    ValidationRuleService,
+  ],
+  exports: [
+    CodingConceptClientService,
+    ContextEnrichmentService,
+    ValidationRuleService,
+  ],
 })
 export class ValidationModule {}

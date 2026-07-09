@@ -20,6 +20,7 @@ export interface ProtocolConfig {
   protocol: ProtocolType;
   host: string;
   port: number;
+  basePath?: string;
   timeout?: number;
   retryCount?: number;
   retryDelayMs?: number;

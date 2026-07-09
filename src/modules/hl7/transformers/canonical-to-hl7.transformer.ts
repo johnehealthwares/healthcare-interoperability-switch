@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import {
   CanonicalPatient,
   CanonicalOrder,
+  EnrichmentContext,
 } from '../../../common/models';
 
 @Injectable()
@@ -11,7 +12,10 @@ export class CanonicalToHL7Transformer {
   /**
    * Transform Canonical Patient to HL7 PID segment
    */
-  transformPatient(patient: CanonicalPatient): string {
+  transformPatient(
+    patient: CanonicalPatient,
+    enrichmentContext?: EnrichmentContext,
+  ): string {
     const fields = new Array(13).fill('');
 
     // Patient ID
@@ -42,20 +46,27 @@ export class CanonicalToHL7Transformer {
       fields[12] = patient.telecom[0].value || '';
     }
 
+    if (enrichmentContext?.facility?.hl7?.locationCode) {
+      fields[3] = enrichmentContext.facility.hl7.locationCode;
+    }
+
     return `PID|${fields.join('|')}`;
   }
 
   /**
    * Transform Canonical Order to HL7 OBR/ORC segments
    */
-  transformOrder(order: CanonicalOrder): string[] {
+  transformOrder(
+    order: CanonicalOrder,
+    enrichmentContext?: EnrichmentContext,
+  ): string[] {
     const segments: string[] = [];
 
     // ORC segment
     segments.push(this.buildORCSegment(order));
 
     // OBR segment
-    segments.push(this.buildOBRSegment(order));
+    segments.push(this.buildOBRSegment(order, enrichmentContext));
 
     return segments;
   }
@@ -70,13 +81,20 @@ export class CanonicalToHL7Transformer {
     return `ORC|${fields.join('|')}`;
   }
 
-  private buildOBRSegment(order: CanonicalOrder): string {
-    const fields = new Array(6).fill('');
+  private buildOBRSegment(
+    order: CanonicalOrder,
+    enrichmentContext?: EnrichmentContext,
+  ): string {
+    const fields = new Array(24).fill('');
 
     fields[0] = '1'; // OBR-1
     fields[1] = order.id; // OBR-2
     fields[3] = this.buildUniversalServiceIdentifier(order); // OBR-4
     fields[5] = this.formatDateTime(order.authoredOn); // OBR-7
+    fields[23] =
+      enrichmentContext?.terminology?.modality?.code ||
+      enrichmentContext?.terminology?.modality?.display ||
+      '';
 
     return `OBR|${fields.join('|')}`;
   }

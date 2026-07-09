@@ -104,12 +104,12 @@ export class ValidationRuleService {
       const codeValue = getValueByPath(canonicalMessage, rule.action?.codePath || '');
       const concept = await this.codingConceptClient.searchConcept(
         rule.action.module,
-        codeValue,
+        codeValue, 
         route.validationConfig?.metadata ?? rule.action.includeMetadata ?? false,
         route.validationConfig?.mode ?? rule.action.searchMode ?? 'search',
       );
 
-      if (concept?.skipped) {
+      if (concept?.skipped) { 
         results.push({
           id: rule.id,
           name: rule.name,

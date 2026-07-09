@@ -1,0 +1,1 @@
+{"version":3,"file":"routing-table.entity.d.ts","sourceRoot":"","sources":["../../../../src/modules/core/entities/routing-table.entity.ts"],"names":[],"mappings":"AAUA,qBAEa,kBAAkB;IAE7B,EAAE,EAAG,MAAM,CAAC;IAGZ,IAAI,EAAG,MAAM,CAAC;IAGd,WAAW,EAAG,MAAM,CAAC;IAGrB,MAAM,EAAG,GAAG,EAAE,CAAC;IAGf,YAAY,EAAG,MAAM,CAAC;IAGtB,SAAS,EAAG,IAAI,CAAC;IAGjB,SAAS,EAAG,IAAI,CAAC;CAClB"}

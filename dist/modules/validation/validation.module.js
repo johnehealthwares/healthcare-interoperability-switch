@@ -1,0 +1,38 @@
+"use strict";
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ValidationModule = void 0;
+const common_1 = require("@nestjs/common");
+const config_1 = require("@nestjs/config");
+const typeorm_1 = require("@nestjs/typeorm");
+const entities_1 = require("../core/entities");
+const controllers_1 = require("./controllers");
+const services_1 = require("./services");
+let ValidationModule = class ValidationModule {
+};
+exports.ValidationModule = ValidationModule;
+exports.ValidationModule = ValidationModule = __decorate([
+    (0, common_1.Module)({
+        imports: [
+            config_1.ConfigModule,
+            typeorm_1.TypeOrmModule.forFeature([entities_1.ValidationRuleEntity]),
+        ],
+        controllers: [controllers_1.ValidationController],
+        providers: [
+            services_1.CodingConceptClientService,
+            services_1.ContextEnrichmentService,
+            services_1.ValidationRuleService,
+        ],
+        exports: [
+            services_1.CodingConceptClientService,
+            services_1.ContextEnrichmentService,
+            services_1.ValidationRuleService,
+        ],
+    })
+], ValidationModule);
+//# sourceMappingURL=validation.module.js.map

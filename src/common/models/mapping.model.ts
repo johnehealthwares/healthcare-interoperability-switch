@@ -1,4 +1,5 @@
 import { ProtocolType, MessageType } from '../enums';
+import { EnrichmentContext } from './enrichment.model';
 
 export interface MappingStep {
   id: string;
@@ -46,6 +47,7 @@ export interface StandardMapping {
 export interface MappingContext {
   sourceMessage: any;
   targetMessage?: any;
+  context?: EnrichmentContext;
   variables?: Record<string, any>;
   lookupCache?: Map<string, any>;
 }

@@ -4,3 +4,4 @@ export * from './routing.model';
 export * from './mapping.model';
 export * from './event.model';
 export * from './validation.model';
+export * from './enrichment.model';

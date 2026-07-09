@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../healthstack/HS-backend"
+		},
+		{
+			"path": "../rxsoft/rxsoft-admin"
+		}
+	],
+	"settings": {}
+}

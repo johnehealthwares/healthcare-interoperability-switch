@@ -16,6 +16,7 @@ import {
   ProtocolConfig,
   RoutingRule,
   StandardMapping,
+  EnrichmentContext,
 } from '../../../common/models';
 import { AERegistryService } from '../../ae/services/ae-registry.service';
 import { MappingEngineService } from '../../mapping/services/mapping-engine.service';
@@ -38,7 +39,7 @@ import { FHIRValidatorService } from '../../fhir/services/fhir-validator.service
 import { EventTracerService } from './event-tracer.service';
 import { getValueByPath } from '../../../common/utils/path.util';
 import { postJson } from './message-flow.transport';
-import { ValidationRuleService } from '../../validation/services';
+import { ContextEnrichmentService } from '../../validation/services';
 
 export interface CanonicalFlowMessage {
   messageType: MessageType;
@@ -93,6 +94,8 @@ export interface ProcessMessageResult {
   routeId?: string;
   canonicalMessage: CanonicalFlowMessage;
   outboundMessage: any;
+  enrichmentContext: EnrichmentContext;
+  enrichmentWarnings: string[];
   message: string;
 }
 
@@ -126,13 +129,16 @@ export class MessageFlowService {
     private readonly fhirToCanonical: FHIRToCanonicalTransformer,
     private readonly canonicalToFhir: CanonicalToFHIRTransformer,
     private readonly eventTracer: EventTracerService,
-    private readonly validationRuleService: ValidationRuleService,
+    private readonly contextEnrichmentService: ContextEnrichmentService,
   ) {}
 
   async processHealthstackOrderModel(orderModel: Record<string, any>) {
     return this.processMessage({
       sourceAE: 'healthstack',
-      targetAE: 'dcm4chee',
+      targetAE:
+        typeof orderModel.targetAE === 'string'
+          ? orderModel.targetAE
+          : undefined,
       messageType: MessageType.ORDER,
       protocol: ProtocolType.CUSTOM_JSON,
       payload: orderModel,
@@ -263,11 +269,23 @@ export class MessageFlowService {
 
       this.assertAEAccess(targetAE, targetProtocol, 'outbound');
 
-      const validationResults =
-        await this.validationRuleService.evaluateRouteValidations(
-          routeResult.route,
-          canonicalMessage,
-        );
+      const enrichmentResult = await this.contextEnrichmentService.resolve({
+        route: routeResult.route,
+        sourceMessage: request.payload,
+        canonicalMessage,
+        sourceAE,
+        targetAE,
+        sourceProtocol,
+        targetProtocol,
+        messageType,
+      });
+
+      await this.recordEvent(context, EventType.MESSAGE_MAPPED, MessageStatus.MAPPING, {
+        direction: 'outbound-enrichment',
+        routeId: routeResult.route.id,
+        context: enrichmentResult.context,
+        warnings: enrichmentResult.warnings,
+      });
 
       const outboundBinding = this.resolveMappingBinding(
         targetAE,
@@ -284,6 +302,7 @@ export class MessageFlowService {
         outboundBinding,
         routeResult.route,
         targetAE,
+        enrichmentResult.context,
       );
 
       await this.recordEvent(
@@ -295,7 +314,8 @@ export class MessageFlowService {
           targetAE: targetAE.id,
           targetProtocol,
           mapping: describeBinding(outboundBinding, targetProtocol),
-          validationResults,
+          enrichmentContext: enrichmentResult.context,
+          enrichmentWarnings: enrichmentResult.warnings,
           outboundPreview: outboundMessage,
         },
       );
@@ -321,6 +341,8 @@ export class MessageFlowService {
         routeId: routeResult.route.id,
         canonicalMessage,
         outboundMessage,
+        enrichmentContext: enrichmentResult.context,
+        enrichmentWarnings: enrichmentResult.warnings,
         message: 'Success'
       };
     } catch (error) {
@@ -545,10 +567,17 @@ export class MessageFlowService {
     binding: AEMappingBinding | null,
     route: RoutingRule,
     targetAE: ApplicationEntityContract,
+    enrichmentContext: EnrichmentContext,
   ): Promise<any> {
     if (protocol === ProtocolType.CUSTOM_JSON) {
       const mapping = await this.requireMapping(binding, protocol, messageType, 'outbound');
-      const result = await this.mappingEngine.mapMessage(canonicalMessage, mapping);
+      const result = await this.mappingEngine.mapMessage(canonicalMessage, mapping, {
+        sourceMessage: canonicalMessage,
+        context: enrichmentContext,
+        variables: {
+          now: new Date().toISOString(),
+        },
+      });
 
       if (!result.success || result.targetMessage === undefined) {
         throw new Error(result.errors?.join(', ') || 'Custom outbound mapping failed');
@@ -564,7 +593,7 @@ export class MessageFlowService {
         const patientMessage = normalizeCanonicalPatient(canonicalMessage);
         const outbound = buildHl7Message([
           buildHl7MshSegment(messageType, switchAE, targetAE, route),
-          this.canonicalToHl7.transformPatient(patientMessage),
+          this.canonicalToHl7.transformPatient(patientMessage, enrichmentContext),
         ]);
         this.assertOutboundHl7(outbound);
         return outbound;
@@ -572,11 +601,14 @@ export class MessageFlowService {
 
       const orderMessage = normalizeCanonicalOrder(canonicalMessage);
       const patientMessage = normalizeCanonicalPatient(canonicalMessage);
-      const orderSegments = this.canonicalToHl7.transformOrder(orderMessage);
+      const orderSegments = this.canonicalToHl7.transformOrder(
+        orderMessage,
+        enrichmentContext,
+      );
 
       const outbound = buildHl7Message([
         buildHl7MshSegment(messageType, switchAE, targetAE, route),
-        this.canonicalToHl7.transformPatient(patientMessage),
+        this.canonicalToHl7.transformPatient(patientMessage, enrichmentContext),
         ...orderSegments,
       ]);
       this.assertOutboundHl7(outbound);
@@ -587,11 +619,13 @@ export class MessageFlowService {
       if (messageType === MessageType.PATIENT) {
         return this.canonicalToFhir.transformPatient(
           normalizeCanonicalPatient(canonicalMessage),
+          enrichmentContext,
         );
       }
 
       return this.canonicalToFhir.transformOrder(
         normalizeCanonicalOrder(canonicalMessage),
+        enrichmentContext,
       );
     }
 
@@ -933,7 +967,8 @@ function buildHl7MshSegment(
 }
 
 function buildHttpBaseUrl(config: ProtocolConfig): string {
-  return `http://${config.host}:${config.port}`;
+  const base = `http://${config.host}:${config.port}`;
+  return config.basePath ? `${base}${config.basePath}` : base;
 }
 
 function canonicalOrderToFlowOrder(order: CanonicalOrder): CanonicalFlowMessage['order'] {
